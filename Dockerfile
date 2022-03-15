@@ -2,12 +2,13 @@ FROM alpine:latest
 
 WORKDIR /app
 
-ENV OUTPUT /stylesheet/
+ENV OUTPUT /init
 ENV MAP_PBF_URL https://download.geofabrik.de/asia/azerbaijan-latest.osm.pbf
 ENV DB_PORT=5432
 ENV DB=*
 ENV DB_HOST=localhost
 ENV DB_USER=postgres
+ENV DB_PASS=secret
 
 RUN apk update --no-cache && \
 	apk add --no-cache python3 py3-yaml && \
@@ -23,6 +24,7 @@ RUN pip install psycopg2
 RUN pip install requests
 #install mapnik?
 
+COPY entrypoint.sh .
 COPY init.sh /app/init.sh
 COPY db-init.sh /app/db-init.sh
 COPY db-init-ddl.sql /app/db-init-ddl.sql
@@ -32,7 +34,7 @@ RUN ln -s /app/init.sh /usr/bin/init
 RUN ln -s /app/db-init.sh /usr/bin/db-init
 RUN ln -s /app/post-init.sh /usr/bin/post-init
 
-#ENTRYPOINT []
+ENTRYPOINT ["/app/entrypoint.sh"]
 
 
 CMD ["/app/init.sh"]
